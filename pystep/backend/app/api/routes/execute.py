@@ -95,13 +95,15 @@ async def execute_code(
 
 @router.post("/hint")
 async def get_hint(
-    exercise_id: int,
-    current_code: str,
+    request: dict,
     db: Session = Depends(get_db)
 ):
     """
     Solicita uma dica da IA para o exercício atual.
     """
+    exercise_id = request.get("exercise_id")
+    current_code = request.get("current_code", "")
+    
     exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
     if not exercise:
         raise HTTPException(
@@ -109,10 +111,7 @@ async def get_hint(
             detail="Exercício não encontrado"
         )
     
-    # Gerar dica com IA
-    hint = ai_tutor.generate_hint(
-        exercise_description=exercise.descricao,
-        current_code=current_code
-    )
+    # Retornar dica do exercício
+    hint = exercise.dica or "Continue tentando! Você está no caminho certo."
     
     return {"hint": hint}

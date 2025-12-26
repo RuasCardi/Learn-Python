@@ -88,13 +88,19 @@ export default function Lesson() {
     }
   }
 
-  const handleNextExercise = () => {
+  const handleNextExercise = async () => {
     if (currentExercise < exercises.length - 1) {
       setCurrentExercise(currentExercise + 1)
       setCode(exercises[currentExercise + 1].codigo_inicial)
       setOutput('')
       setFeedback(null)
     } else {
+      // Completou todos os exercícios da lição
+      // Atualizar nível do usuário se necessário
+      const nextLevel = lesson.nivel + 1
+      if (user.nivel_atual < nextLevel) {
+        updateUser({ nivel_atual: nextLevel })
+      }
       navigate('/dashboard')
     }
   }
@@ -147,7 +153,7 @@ export default function Lesson() {
             {lesson?.conteudo && (
               <div className="bg-white rounded-xl shadow p-6">
                 <h2 className="text-lg font-bold text-gray-800 mb-4">📚 Teoria</h2>
-                <div className="prose prose-sm" dangerouslySetInnerHTML={{ __html: lesson.conteudo }} />
+                <div className="prose prose-sm text-gray-900" dangerouslySetInnerHTML={{ __html: lesson.conteudo }} />
               </div>
             )}
 
@@ -169,8 +175,8 @@ export default function Lesson() {
 
             {/* Console / Output */}
             <div className="bg-gray-900 rounded-xl shadow p-6 text-white">
-              <h3 className="text-sm font-semibold mb-3 text-gray-800">Console</h3>
-              <pre className="font-mono text-sm whitespace-pre-wrap">
+              <h3 className="text-sm font-semibold mb-3 text-gray-300">Console</h3>
+              <pre className="font-mono text-sm whitespace-pre-wrap text-green-400">
                 {output || 'Execute seu código para ver o resultado...'}
               </pre>
             </div>
@@ -190,10 +196,25 @@ export default function Lesson() {
                   {feedback.severity === 'info' && <Lightbulb className="w-6 h-6 text-blue-600 flex-shrink-0" />}
                   
                   <div className="flex-1">
-                    <p className="font-semibold mb-2">{feedback.feedback}</p>
-                    {feedback.hint && <p className="text-sm mb-2">💡 {feedback.hint}</p>}
+                    <p className={`font-semibold mb-2 ${
+                      feedback.severity === 'success' ? 'text-green-900' :
+                      feedback.severity === 'error' ? 'text-red-900' :
+                      feedback.severity === 'warning' ? 'text-yellow-900' :
+                      'text-blue-900'
+                    }`}>{feedback.feedback}</p>
+                    {feedback.hint && <p className={`text-sm mb-2 ${
+                      feedback.severity === 'success' ? 'text-green-800' :
+                      feedback.severity === 'error' ? 'text-red-800' :
+                      feedback.severity === 'warning' ? 'text-yellow-800' :
+                      'text-blue-800'
+                    }`}>💡 {feedback.hint}</p>}
                     {feedback.encouragement && (
-                      <p className="text-sm font-medium">{feedback.encouragement}</p>
+                      <p className={`text-sm font-medium ${
+                        feedback.severity === 'success' ? 'text-green-800' :
+                        feedback.severity === 'error' ? 'text-red-800' :
+                        feedback.severity === 'warning' ? 'text-yellow-800' :
+                        'text-blue-800'
+                      }`}>{feedback.encouragement}</p>
                     )}
                     
                     {feedback.severity === 'success' && (

@@ -17,8 +17,14 @@ export default function Dashboard() {
 
   const loadLessons = async () => {
     try {
-      const response = await lessonsAPI.getAllWithProgress(user.id)
-      setLessons(response.data)
+      const response = await lessonsAPI.getAll()
+      // Adicionar lógica de desbloqueio baseada no nível do usuário
+      const lessonsWithLock = response.data.map(lesson => ({
+        ...lesson,
+        is_unlocked: lesson.nivel <= user.nivel_atual,
+        is_completed: false // TODO: implementar quando tiver backend de progresso
+      }))
+      setLessons(lessonsWithLock)
     } catch (error) {
       console.error('Erro ao carregar lições:', error)
     } finally {

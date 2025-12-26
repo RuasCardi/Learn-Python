@@ -1,9 +1,8 @@
 # Script para popular o banco de dados com mais exercícios de Python
 # Salve como popular_exercicios.py na pasta backend
 
-from app.db.session import SessionLocal
-from app.models.exercise import Exercise
-from app.models.lesson import Lesson
+from app.core.database import SessionLocal
+from app.models import Exercise, Lesson
 
 # Exercícios exemplo
 exercicios = [
@@ -34,14 +33,15 @@ def popular_exercicios():
     db = SessionLocal()
     # Associa todos à primeira lição existente
     lesson = db.query(Lesson).first()
-    for ex in exercicios:
+    for idx, ex in enumerate(exercicios, start=1):
         novo = Exercise(
             lesson_id=lesson.id if lesson else 1,
             titulo=ex["titulo"],
             descricao=ex["descricao"],
-            entrada_exemplo=ex["entrada_exemplo"],
-            saida_esperada=ex["saida_esperada"],
-            dica=ex["dica"]
+            input_data=ex["entrada_exemplo"],
+            expected_output=ex["saida_esperada"],
+            dica=ex["dica"],
+            ordem=idx
         )
         db.add(novo)
     db.commit()
